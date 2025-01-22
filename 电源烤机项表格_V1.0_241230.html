@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>电源烤机项表格 | author: sxl</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .hover-button {
+      cursor: pointer;
+      padding: 12px 24px;
+      font-size: 16px;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .hover-button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .hover-button:active {
+      background-color: #004d99;
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .static-table-container {
+      margin-top: 40px;
+    }
+
+    .static-table-container h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+
+    .static-table {
+    width: 100%;
+    max-width: 1000px;
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    table-layout: auto; /* 确保表格根据内容自动调整 */
+  }
+
+    /*主表*/
+    .static-table th, .static-table td {
+    border: 1px solid #e0e0e0;
+    padding: 12px 16px;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap; /* 允许文本自动换行 */
+    word-wrap: break-word; /* 长单词自动断行 */
+    text-overflow: ellipsis;
+    max-width: 400px;
+    font-size: 14px; /* 调整主表格的字体大小 */
+  }
+
+    .static-table th {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+    }
+
+    .static-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .static-table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .static-table tr.highlight {
+      background-color: #d4edda;
+      border-left: 5px solid #28a745;
+    }
+
+    .static-table td.struck-through {
+      text-decoration: line-through;
+      color: #888;
+    }
+
+    .clock {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #333;
+      padding: 8px 12px;
+      background-color: white;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 新增的辅助表格样式 */
+    .auxiliary-table {
+      width: 100%;
+      max-width: 1000px;
+      border-collapse: collapse;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      table-layout: auto;
+    }
+
+    .auxiliary-table th, .auxiliary-table td {
+      border: 1px solid #e0e0e0;
+      padding: 12px 16px;
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 300px;
+      font-size: 14px;
+    }
+
+    .auxiliary-table th {
+      background-color: #007bff;
+      color: white;
+      font-weight: bold;
+    }
+
+    .auxiliary-table tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    .auxiliary-table tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .auxiliary-table td.struck-through {
+      text-decoration: line-through;
+      color: #888;
+    }
+  /* 定义弹窗样式 */
+  #copyPopup {
+    display: none; /* 默认隐藏 */
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.5s ease-out; /* 渐变效果 */
+    z-index: 1000;
+  }
+  </style>
+</head>
+<body>
+  <!-- 时钟显示 -->
+  <div class="clock" id="clock"></div>
+
+  <div id="copyPopup">已复制！</div>
+
+  <div class="container">
+    <!-- 生成15个按钮 -->
+    <div class="button-group">
+      <button class="hover-button" data-table-id="1">有线机型软硬重启</button>
+      <button class="hover-button" data-table-id="2">有线机型长稳</button>
+      <button class="hover-button" data-table-id="3">有线机型高功耗</button>
+      <button class="hover-button" data-table-id="4">WiFi软硬重启</button>
+      <button class="hover-button" data-table-id="5">WiFi长稳</button>
+      <button class="hover-button" data-table-id="6">WiFi机型高功耗</button>
+      <button class="hover-button" data-table-id="7">高低温运行</button>
+      <button class="hover-button" data-table-id="8">低温启动</button>
+      <button class="hover-button" data-table-id="9">AF寿命烤机</button>
+      <button class="hover-button" data-table-id="10">PT寿命烤机</button>
+      <button class="hover-button" data-table-id="11">PT位置准确性烤机</button>
+      <button class="hover-button" data-table-id="12">蓝牙软硬重启、长稳</button>
+      <button class="hover-button" data-table-id="13">IRCUT随机切换烤机</button>
+      <button class="hover-button" data-table-id="14">sub1g通讯压测拷机、长稳拷机</button>
+      <button class="hover-button" data-table-id="15">...</button>
+    </div>
+  </div>
+  <!-- 辅助表格（8x2） -->
+  <div class="static-table-container">
+    <h3>烤机前准备与环境确认</h3>
+    <table class="auxiliary-table">
+      <thead>
+        <tr>
+          <th>烤机前准备</th>
+          <th>环境确认</th>
+        </tr>
+      </thead>
+      <tbody id="auxiliaryTableBody">
+        <tr id="aux-row1">
+          <td>1.IPC升级成对应烤机版本</td>
+          <td>1.串口是否在正常打印</td>
+        </tr>
+        <tr id="aux-row2">
+          <td>2.AF机型烤机前进行学习</td>
+          <td>2.SD卡、硬盘能正常识别，都有在在录像</td>
+        </tr>
+        <tr id="aux-row3">
+          <td>3.双目机型烤机前进行拼接和曝光补偿</td>
+          <td>3.系统时间正常，与串口电脑时间保存一致</td>
+        </tr>
+        <tr id="aux-row4">
+          <td>4.烤机前进行光耦校准</td>
+          <td>4.软硬重启，等待3-5min，设备能够正常重启</td>
+        </tr>
+        <tr id="aux-row5">
+          <td>5.烤机前进行中心点校准</td>
+          <td>5.长时间运行的烤机确认自动维护是否关闭<br>（特殊要求打开的环境除外）</td>
+        </tr>
+        <tr id="aux-row6">
+          <td>6.软重启：NVR升级软重启版本，通过NVR控制IPC重启</td>
+          <td>6.针对烤机项相关业务检查：<br>
+            ① 高功耗各硬件是否全部运行 <br></td>
+        </tr>
+        <tr id="aux-row7">
+          <td>7.硬重启：通过定时插座控制IPC重启（POE供电设备<br>控制交换机或者NVR进行重启，接适配器的设备特别注意适配器<br>也要同时断电上电，不要只控制了网络）</td>
+          <td> ② AF/PT寿命烤机AF/PT是否按照预期方式运行</td>
+        </tr>
+        <tr id="aux-row8">
+          <td>8.长稳版本，NVR尽量保存为正式版本（NVR一定不能是软硬重启<br>版本），关闭自动维护<br></td>
+          <td>③ ircut随机切换烤机IRCUT是否正常切换</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- 主表格 -->
+  <div class="static-table-container">
+    <h3>电源烤机项</h3>
+    <table class="static-table">
+      <thead>
+        <tr>
+          <th>测试项<br></th>
+          <th>环境搭建<br></th>
+          <th>业务配置<br></th>
+          <th>时长<br></th>
+          <th>烤机检查项<br></th>
+          <th>重点关注<br></th>
+          <th>开发烤机备注<br></th>
+        </tr>
+      </thead>
+      <tbody id="staticTableBody">
+        <tr id="row1">
+          <td>有线机型软硬重启<br></td>
+          <td>POE套装机器直接接在NVR下行口；<br>
+            POE单机，部分适配器供电部分POE供电;<br>
+            AF机型环境搭建好后手动对焦保证对焦清晰<br></td>
+          <td>最大帧率码率；<br>
+            SD卡定时录像，尽量覆盖不同大小（16-256G）；<br>
+            Email（一半图片一半视频，定时 5分钟一次，开启AI叠图）；<br>
+            FTP（图片+视频，定时）<br>
+            云；<br>
+            NVR添加；<br>
+            （尽量全部业务跑起来。部分机型性能不够，有些业务不能全开，<br>与开发对接开启哪些业务烤机）<br></td>
+          <td>2天<br></td>
+          <td>1、图像，图像是否花屏、是否有竖线横纹等、噪点严重等；<br>
+            2、SD卡录像，大小码流是否丢录像、录像回放是否正常；<br>
+            3、NVR录像，NVR上是否丢录像、录像回放是否正常；<br>
+            4、性能检查，是否卡顿、CPU占用、内存；<br>
+            5、Email，Email是否一直正常上传、上传文件是否正常；<br>
+            6、FTP，FTP是否一直正常上传、上传文件是否正常；<br>
+            7、云，云是否一直正常上传、上传文件是否正常；<br>
+            8、IRCUT，IRCUT正常切换；<br>
+            9、红外灯，红外灯能正常使用，夜视图像正常；<br>
+            10、白光灯，白光灯正常，灯杯透镜等无发黄融化等现象；<br>
+            11、录像音频，音频正常、无声音忽大忽小、无杂音等现象；<br>
+            12、喇叭，喇叭正常响应、无破音失真等；<br>
+            13、PT，PT都能正常使用、转动流畅、使用时设备不会掉线；<br>
+            14、AF，相同场景不断电情况下仍然对焦清晰，无失焦情况、<br>AF能正常使用，手动对焦能对焦清晰<br>
+            <br>
+            定时上传日志，烤机稳定后业务可以降低查询频率，但日志要每天<br>检查都在正常运行<br></td>
+          <td>丢录像情况；<br>
+            编码是否异常；<br>
+            性能是否足够；<br>
+            网络连接情况；<br>
+            软件各业务是否会有异常；<br>
+            是否异常重启</td>
+          <td>1) x台机器跑软硬重启重启长稳，x台poe、x台适配器连接;<br>
+2) 业务开SD卡定时录像、email、ftp抓图抓视频，覆盖大小卡，帧率码率调到最高;<br>
+3) 关注丢录像情况。<br></td>
+        </tr>
+        <tr id="row2">
+          <td>有线机型长稳<br></td>
+          <td>POE套装机器直接接在NVR下行口；<br>
+            POE单机，部分适配器供电部分POE供电;<br>
+            AF机型环境搭建好后手动对焦保证对焦清晰<br></td>
+          <td>最大帧率码率；<br>
+            SD卡定时录像，尽量覆盖不同大小（16-256G）；<br>
+            Email（一半图片一半视频，定时 5分钟一次，开启AI叠图）；<br>
+            FTP（图片+视频，定时）<br>
+            云；<br>
+            NVR添加；<br>
+            （尽量全部业务跑起来。部分机型性能不够，有些业务不能全开，<br>与开发对接开启哪些业务烤机）<br></td>
+          <td>2天<br></td>
+          <td>1、图像，图像是否花屏、是否有竖线横纹等、噪点严重等；<br>
+            2、SD卡录像，大小码流是否丢录像、录像回放是否正常；<br>
+            3、NVR录像，NVR上是否丢录像、录像回放是否正常；<br>
+            4、性能检查，是否卡顿、CPU占用、内存；<br>
+            5、Email，Email是否一直正常上传、上传文件是否正常；<br>
+            6、FTP，FTP是否一直正常上传、上传文件是否正常；<br>
+            7、云，云是否一直正常上传、上传文件是否正常；<br>
+            8、IRCUT，IRCUT正常切换；<br>
+            9、红外灯，红外灯能正常使用，夜视图像正常；<br>
+            10、白光灯，白光灯正常，灯杯透镜等无发黄融化等现象；<br>
+            11、录像音频，音频正常、无声音忽大忽小、无杂音等现象；<br>
+            12、喇叭，喇叭正常响应、无破音失真等；<br>
+            13、PT，PT都能正常使用、转动流畅、使用时设备不会掉线；<br>
+            14、AF，相同场景不断电情况下仍然对焦清晰，无失焦情况、<br>AF能正常使用，手动对焦能对焦清晰<br>
+            <br>
+            定时上传日志，烤机稳定后业务可以降低查询频率，但日志要每天<br>检查都在正常运行<br></td>
+          <td>丢录像情况；<br>
+            编码是否异常；<br>
+            性能是否足够；<br>
+            网络连接情况；<br>
+            软件各业务是否会有异常；<br>
+            是否异常重启</td>
+          <td>1) x台机器跑软硬重启重启长稳，x台poe、x台适配器连接;<br>
+2) 业务开SD卡定时录像、email、ftp抓图抓视频，覆盖大小卡，帧率码率调到最高;<br>
+3) 关注丢录像情况。<br></td>
+          </td>
+        </tr>
+        <tr id="row3">
+          <td>有线机型高功耗</td>
+          <td>POE机型，部分短网线、部分长网线</td>
+          <td>软件相关业务：<br>
+            最大帧率码率；<br>
+            SD卡定时录像，尽量覆盖不同大小（16-256G）；<br>
+            Email（一半图片一半视频，定时 5分钟一次）；<br>
+            FTP（图片+视频，定时）<br>
+            云；<br>
+            NVR添加；<br>
+            增加硬件相关业务（开发出特殊版本）：<br>
+            PT一直转；<br>
+            AF一直运行；<br>
+            喇叭一直响；<br>
+            IRcut定时切换；<br>
+            红外、白光灯一直亮； </td>
+          <td>2天</td>
+          <td>1、图像，图像是否花屏、是否有竖线横纹等、噪点严重等；<br>
+            2、SD卡录像，大小码流是否丢录像、录像回放是否正常；<br>
+            3、NVR录像，NVR上是否丢录像、录像回放是否正常；<br>
+            4、性能检查，是否卡顿、CPU占用、内存；<br>
+            5、Email，Email是否一直正常上传、上传文件是否正常；<br>
+            6、FTP，FTP是否一直正常上传、上传文件是否正常；<br>
+            7、云，云是否一直正常上传、上传文件是否正常；<br>
+            8、IRCUT，IRCUT正常切换；<br>
+            9、红外灯，红外灯能正常使用，夜视图像正常；<br>
+            10、白光灯，白光灯正常，灯杯透镜等无发黄融化等现象；<br>
+            11、录像音频，音频正常、无声音忽大忽小、无杂音等现象；<br>
+            12、喇叭，喇叭正常响应、无破音失真等；<br>
+            13、PT，PT都能正常使用、转动流畅、使用时设备不会掉线；<br>
+            14、AF，相同场景不断电情况下仍然对焦清晰，无失焦情况、<br>AF能正常使用，手动对焦能对焦清晰<br>
+            <br>
+            定时上传日志，烤机稳定后业务可以降低查询频率，但日志要每天<br>检查都在正常运行<br></td>
+            <td>硬件功耗；<br>
+              硬件相关功能是否会有异常；<br>
+              是否异常重启</td>
+            <td>1) x台机器跑软硬重启重启长稳，x台poe、x台适配器连接;<br>
+2) 业务开SD卡定时录像、email、ftp抓图抓视频，覆盖大小卡，帧率码率调到最高;<br>
+3) 关注丢录像情况。<br></td>
+            </td>
+        </tr>
+        <tr id="row4">
+          <td>WiFi软硬重启</td>
+          <td>WiFi套装机器配套WiFi NVR测试；<br>
+            WiFi单机配套路由器测试；<br>
+            WiFi配置一半2.4G、一半5G；<br>
+            WiFi环境尽量在干净的网络环境下进行；<br>
+            AF机型环境搭建好后手动对焦保证对焦清晰</td>
+          <td>最大帧率码率；<br>
+              SD卡定时录像，尽量覆盖不同大小（16-256G）；<br>
+              Email（一半图片一半视频，定时 5分钟一次，开启AI叠图）；<br>
+              FTP（图片+视频，定时）<br>
+              云；<br>
+              NVR添加；<br>
+              （尽量全部业务跑起来。部分机型性能不够，有些业务不能全开，<br>与开发对接开启哪些业务烤机）<br></td>
+          <td>2天</td>
+          <td>1、图像，图像是否花屏、是否有竖线横纹等、噪点严重等；<br>
+            2、SD卡录像，大小码流是否丢录像、录像回放是否正常；<br>
+            3、NVR录像，NVR上是否丢录像、录像回放是否正常；<br>
+            4、性能检查，是否卡顿、CPU占用、内存；<br>
+            5、Email，Email是否一直正常上传、上传文件是否正常；<br>
+            6、FTP，FTP是否一直正常上传、上传文件是否正常；<br>
+            7、云，云是否一直正常上传、上传文件是否正常；<br>
+            8、IRCUT，IRCUT正常切换；<br>
+            9、红外灯，红外灯能正常使用，夜视图像正常；<br>
+            10、白光灯，白光灯正常，灯杯透镜等无发黄融化等现象；<br>
+            11、录像音频，音频正常、无声音忽大忽小、无杂音等现象；<br>
+            12、喇叭，喇叭正常响应、无破音失真等；<br>
+            13、PT，PT都能正常使用、转动流畅、使用时设备不会掉线；<br>
+            14、AF，相同场景不断电情况下仍然对焦清晰，无失焦情况、<br>AF能正常使用，手动对焦能对焦清晰<br>
+            <br>
+            定时上传日志，烤机稳定后业务可以降低查询频率，但日志要每天<br>检查都在正常运行<br></td>
+          <td>丢录像情况；<br>
+            编码是否异常；<br>
+            性能是否足够；<br>
+            网络连接情况；<br>
+            软件各业务是否会有异常；<br>
+            是否异常重启</td>
+          <td>1) x台机器跑软硬重启重启长稳，x台2.4G、x台5G、x台网线连接;<br>
+2) 业务开SD卡定时录像、email、ftp抓图抓视频，覆盖大小卡，帧率码率调到最高;<br>
+3) 关注丢录像情况。<br></td>
+
+        </tr>
+        <tr id="row5">
+          <td>WiFi长稳</td>
+          <td>WiFi套装机器配套WiFi NVR测试；<br>
+            WiFi单机配套路由器测试；<br>
+            WiFi配置一半2.4G、一半5G；<br>
+            WiFi环境尽量在干净的网络环境下进行；<br>
+            AF机型环境搭建好后手动对焦保证对焦清晰</td>
+            <td>最大帧率码率；<br>
+              SD卡定时录像，尽量覆盖不同大小（16-256G）；<br>
+              Email（一半图片一半视频，定时 5分钟一次，开启AI叠图）；<br>
+              FTP（图片+视频，定时）<br>
+              云；<br>
+              NVR添加；<br>
+              （尽量全部业务跑起来。部分机型性能不够，有些业务不能全开，<br>与开发对接开启哪些业务烤机）<br></td>
+          <td>7天</td>
+          <td>1、图像，图像是否花屏、是否有竖线横纹等、噪点严重等；<br>
+            2、SD卡录像，大小码流是否丢录像、录像回放是否正常；<br>
+            3、NVR录像，NVR上是否丢录像、录像回放是否正常；<br>
+            4、性能检查，是否卡顿、CPU占用、内存；<br>
+            5、Email，Email是否一直正常上传、上传文件是否正常；<br>
+            6、FTP，FTP是否一直正常上传、上传文件是否正常；<br>
+            7、云，云是否一直正常上传、上传文件是否正常；<br>
+            8、IRCUT，IRCUT正常切换；<br>
+            9、红外灯，红外灯能正常使用，夜视图像正常；<br>
+            10、白光灯，白光灯正常，灯杯透镜等无发黄融化等现象；<br>
+            11、录像音频，音频正常、无声音忽大忽小、无杂音等现象；<br>
+            12、喇叭，喇叭正常响应、无破音失真等；<br>
+            13、PT，PT都能正常使用、转动流畅、使用时设备不会掉线；<br>
+            14、AF，相同场景不断电情况下仍然对焦清晰，无失焦情况、<br>AF能正常使用，手动对焦能对焦清晰<br>
+            <br>
+            定时上传日志，烤机稳定后业务可以降低查询频率，但日志要每天<br>检查都在正常运行<br></td>
+          <td>丢录像情况；<br>
+            编码是否异常；<br>
+            性能是否足够；<br>
+            网络连接情况；<br>
+            软件各业务是否会有异常；<br>
+            是否异常重启</td>
+          <td>1) x台机器跑软硬重启重启长稳，x台2.4G、x台5G、x台网线连接;<br>
+2) 业务开SD卡定时录像、email、ftp抓图抓视频，覆盖大小卡，帧率码率调到最高;<br>
+3) 关注丢录像情况。<br></td>
+        </tr>
+
+        <tr id="row6">
+          <td>WiFi机型高功耗</td>
+          <td>WiFi机型，部分直接接适配器、部分适配器加电源延长线；<br>
+            部分有线连接、部分WiFi连接；<br>
+            WiFi环境尽量在干净的网络环境下进行；<br></td>
+          <td>软件相关业务：<br>
+            最大帧率码率；<br>
+            SD卡定时录像，尽量覆盖不同大小（16-256G）；<br>
+            Email（一半图片一半视频，定时 5分钟一次）；<br>
+            FTP（图片+视频，定时）<br>
+            云；<br>
+            NVR添加；<br>
+            <br>           
+            硬件相关业务：<br>
+            PT一直转；<br>
+            AF一直运行；<br>
+            喇叭一直响；<br>
+            IRcut定时切换；<br>
+            红外、白光灯一直亮；<br></td>
+          <td>2天</td>
+          <td>1、图像，图像是否花屏、是否有竖线横纹等、噪点严重等；<br>
+            2、SD卡录像，大小码流是否丢录像、录像回放是否正常；<br>
+            3、NVR录像，NVR上是否丢录像、录像回放是否正常；<br>
+            4、性能检查，是否卡顿、CPU占用、内存；<br>
+            5、Email，Email是否一直正常上传、上传文件是否正常；<br>
+            6、FTP，FTP是否一直正常上传、上传文件是否正常；<br>
+            7、云，云是否一直正常上传、上传文件是否正常；<br>
+            8、IRCUT，IRCUT正常切换；<br>
+            9、红外灯，红外灯能正常使用，夜视图像正常；<br>
+            10、白光灯，白光灯正常，灯杯透镜等无发黄融化等现象；<br>
+            11、录像音频，音频正常、无声音忽大忽小、无杂音等现象；<br>
+            12、喇叭，喇叭正常响应、无破音失真等；<br>
+            13、PT，PT都能正常使用、转动流畅、使用时设备不会掉线；<br>
+            14、AF，相同场景不断电情况下仍然对焦清晰，无失焦情况、<br>AF能正常使用，手动对焦能对焦清晰<br>
+            <br>
+            定时上传日志，烤机稳定后业务可以降低查询频率，但日志要每天<br>检查都在正常运行<br></td>
+          <td>硬件功耗；<br>
+              硬件相关功能是否会有异常；<br>
+              是否异常重启</td>
+          <td>1) x台机器跑软硬重启重启长稳，x台2.4G、x台5G、x台网线连接;<br>
+2) 业务开SD卡定时录像、email、ftp抓图抓视频，覆盖大小卡，帧率码率调到最高;<br>
+3) 关注丢录像情况。<br></td>
+        </tr>
+        <tr id="row7">
+          <td>高低温运行</td>
+          <td>高低温箱进行，设置对应环境温度；<br>
+            AF机型环境搭建好后手动对焦保证对焦清晰<br></td>
+          <td>\</td>
+          <td>\</td>
+          <td>1、图像，图像是否花屏、是否有竖线横纹等、噪点严重等；<br>
+            2、SD卡录像，大小码流是否丢录像、录像回放是否正常；<br>
+            3、NVR录像，NVR上是否丢录像、录像回放是否正常；<br>
+            4、IRCUT，IRCUT正常切换；<br>
+            5、红外灯，红外灯能正常使用，夜视图像正常；<br>
+            6、白光灯，白光灯正常，灯杯透镜等无发黄融化等现象；<br>
+            7、录像音频，音频正常、无声音忽大忽小、无杂音等现象；<br>
+            8、喇叭，喇叭正常响应、无破音失真等；<br>
+            9、PT，PT都能正常使用、转动流畅、使用时设备不会掉线；<br>
+            10、AF，相同场景不断电情况下仍然对焦清晰，无失焦情况、<br>AF能正常使用，手动对焦能对焦清晰</td>
+          <td>各硬件功能是否正常；<br>
+            是否异常重启</td>
+          <td>\</td>
+        </tr>
+        <tr id="row8">
+          <td>低温启动</td>
+          <td>高低温箱进行，设置对应环境温度</td>
+          <td>\</td>
+          <td>\</td>
+          <td>1、图像，图像是否花屏、是否有竖线横纹等、噪点严重等；<br>
+            2、SD卡录像，大小码流是否丢录像、录像回放是否正常；<br>
+            3、NVR录像，NVR上是否丢录像、录像回放是否正常；<br>
+            4、IRCUT，IRCUT正常切换；<br>
+            5、红外灯，红外灯能正常使用，夜视图像正常；<br>
+            6、白光灯，白光灯正常，灯杯透镜等无发黄融化等现象；<br>
+            7、录像音频，音频正常、无声音忽大忽小、无杂音等现象；<br>
+            8、喇叭，喇叭正常响应、无破音失真等；<br>
+            9、PT，PT都能正常使用、转动流畅、使用时设备不会掉线；<br>
+            10、AF，相同场景不断电情况下仍然对焦清晰，无失焦情况、<br>AF能正常使用，手动对焦能对焦清晰</td>
+          <td>各硬件功能是否正常；<br>
+              是否异常重启</td>
+          <td>\</td>
+        </tr>
+        <tr id="row9">
+          <td>AF寿命烤机</td>
+          <td>部分网线连接、部分WiFi连接；<br>
+            安装方式覆盖全面（正装、吊装、侧装等）</td>
+          <td>软件出特殊版本</td>
+          <td>主要看运行测试是否达标</td>
+          <td>AF仍正常运行，对焦清晰<br>
+            设备不会掉线，IPC、NVR不会丢录像；<br>
+            图像正常；<br>
+            <br>
+            前期查询频率可以适当降低，后期要提高频率，最低每天检查一次<br></td>
+          <td>AF移动次数；<br>
+            是否丢步；<br>
+            手动对焦是否清晰；<br>
+            结构是否顶玻璃</td>
+          <td>1) x台机器跑AF烤机<br>
+2) 业务开SD卡定时录像、email、ftp抓图抓视频，覆盖大小卡，帧率码率调到最高;<br>
+3) 关注丢录像、画面对焦情况。<br></td>
+        </tr>
+        <tr id="row10">
+          <td>PT寿命烤机</td>
+          <td>部分网线连接、部分WiFi连接；<br>
+            安装方式覆盖全面（正装、吊装、侧装等）</td>
+          <td>软件出特殊版本：<br>
+            两种PT方式：<br>
+            1、P每转20° T转一圈；<br>
+            2、P装360°T转一圈（T一直在同个水平位置进行运动）</td>
+          <td>主要看运行测试是否达标</td>
+          <td>PT仍正常运行；<br>
+            设备不会掉线，IPC、NVR不会丢录像；<br>
+            图像正常；<br>
+            <br>
+            前期查询频率可以适当降低，后期要提高频率，最低每天检查一次</td>
+          <td>PT转动次数；<br>
+            电机是的损坏、结构是否磨损；<br>
+            网络连接是否正常，是否掉线；<br>
+            PT运行效果；<br>
+            PT是否顶结构</td>
+          <td>1) x台机器跑PT烤机<br>
+2) 业务开SD卡定时录像、email、ftp抓图抓视频，覆盖大小卡，帧率码率调到最高;<br>
+3) 关注丢录像、PT功能、准确性情况。<br></td>
+        </tr>
+        <tr id="row11">
+          <td>PT位置准确性烤机</td>
+          <td>连接NVR录像</td>
+          <td>设置预置点巡航(在镜头和底座处做标记)，朝同一个方向旋转；<br>机器跑巡航，一天后看机身标记和NVR录像。</td>
+          <td>1天</td>
+          <td>预置点，看守位位置是否有偏移</td>
+          <td>位置准确性；<br>
+            验证空回，是否丢步或者过冲等</td>
+          <td>\</td>
+        </tr>
+        <tr id="row12">
+          <td>蓝牙软硬重启、长稳</td>
+          <td>烧录uid，清空配置</td>
+          <td>\</td>
+          <td>1天</td>
+          <td>开发查log</td>
+          <td>\</td>
+          <td>\</td>
+        </tr>
+        <tr id="row13">
+          <td>IRCUT随机切换烤机</td>
+          <td>参考长稳环境</td>
+          <td>软件出特殊版本：<br>
+            IRCUT随机切换</td>
+          <td>2天</td>
+          <td>设备不会掉线，IPC、NVR不会丢录像；<br>
+            图像正常；</td>
+          <td>IRCUT切换次数；<br>
+            IRCUT切换后图像是否正常、无过亮或者过暗、红屏紫屏等异常<br>
+          </td>
+          <td>\</td>
+        
+        </tr>
+        <tr id="row14">
+          <td>sub1g通讯压测拷机、长稳拷机</td>
+          <td>服务端与客户端配对（如1个门铃配对多个叮咚）</td>
+          <td>7*24小时录像</td>
+          <td>\</td>
+          <td>\</td>
+          <td>sub1g之间的通讯、心跳</td>
+          <td>\</td>
+        </tr>
+        <tr id="row15">
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+          <td>...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 获取所有按钮
+      const buttons = document.querySelectorAll('.hover-button');
+
+      // 获取弹窗元素
+      const copyPopup = document.getElementById("copyPopup");
+
+      // 单击按钮时触发的函数
+      function handleSingleClick(event) {
+        const button = event.target;
+        const tableId = button.getAttribute('data-table-id');
+        const rowId = `row${tableId}`;
+        const targetRow = document.getElementById(rowId);
+      
+        if (targetRow) {
+          // 获取第7列的内容
+          const fifthColumnContent = targetRow.cells[6].textContent;
+        
+          // 复制内容到剪切板
+          navigator.clipboard.writeText(fifthColumnContent).then(() => {
+            // 显示弹窗提示
+            showCopyPopup();
+          }).catch(err => {
+            console.error('复制失败:', err);
+            // 如果复制失败，仍然显示弹窗提示
+            copyPopup.textContent = '复制失败';
+            showCopyPopup();
+          });
+        }
+      }
+      
+      // 双击按钮时触发的函数
+      function handleDoubleClick(event) {
+        const button = event.target;
+        const tableId = button.getAttribute('data-table-id');
+        const rowId = `row${tableId}`;
+        const targetRow = document.getElementById(rowId);
+      
+        if (targetRow) {
+          // 滚动到目标行
+          targetRow.scrollIntoView({ behavior: 'smooth' });
+        
+          // 高亮显示目标行
+          highlightRow(targetRow);
+        }
+      }
+      
+      // 高亮显示指定的行
+      function highlightRow(row) {
+        // 移除所有行的高亮
+        const allRows = document.querySelectorAll('.static-table tr');
+        allRows.forEach(r => r.classList.remove('highlight'));
+
+        // 高亮指定的行
+        row.classList.add('highlight');
+      }
+      
+      // 显示弹窗
+      function showCopyPopup() {
+        copyPopup.style.display = "block"; // 显示弹窗
+        copyPopup.style.opacity = "1"; // 设置不透明度为1
+      
+        // 1秒后开始淡出
+        setTimeout(function(){
+          copyPopup.style.opacity = "0"; // 开始淡出
+          setTimeout(function(){
+            copyPopup.style.display = "none"; // 完全隐藏弹窗
+          }, 500); // 等待0.5秒动画结束
+        }, 1000); // 1秒后开始执行淡出
+      }
+      
+      // 为每个按钮添加单击和双击事件监听器
+      buttons.forEach(button => {
+        let clickTimeout;
+      
+        button.addEventListener('click', function(event) {
+          // 清除之前的定时器
+          clearTimeout(clickTimeout);
+        
+          // 设置一个短暂的延迟，用于区分单击和双击
+          clickTimeout = setTimeout(() => {
+            handleSingleClick(event);
+          }, 300);
+        });
+      
+        button.addEventListener('dblclick', function(event) {
+          // 取消单击事件的执行
+          clearTimeout(clickTimeout);
+        
+          // 触发双击事件
+          handleDoubleClick(event);
+        });
+      });
+
+      // 在辅助表格中添加点击划线功能
+      document.querySelector('#auxiliaryTableBody').addEventListener('click', function(event) {
+        const targetCell = event.target.closest('td');
+        targetCell.classList.toggle('struck-through');
+      });
+
+      // 实时更新时间
+      function updateTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const titles = "睿联时间";
+        const timeString = `${titles}:${hours}:${minutes}:${seconds}`;
+        document.getElementById('clock').textContent = timeString;
+      }
+
+      // 每秒更新一次时间
+      setInterval(updateTime, 1000);
+
+      // 页面加载时立即更新时间
+      updateTime();
+    });
+  </script>
+</body>
+</html>
